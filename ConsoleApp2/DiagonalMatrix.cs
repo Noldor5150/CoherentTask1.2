@@ -1,53 +1,63 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleApp2
 {
-   
+   /// <summary>
+   /// Diagonal matrix, inherits form SquareMatrix class, has only 3 values in one dimensional array
+   /// </summary>
+   /// <typeparam name="T">Generic type</typeparam>
     class DiagonalMatrix<T> : SquareMatrix<T>
     {
+        public override event MatrixElementsChanged ElementsChanged;
 
-        public override T this[int a, int j]
+        /// <summary>
+        /// works with protected base class constructor, other params goes as array.Length and 1
+        /// </summary>
+        /// <param name="elements"> Matrix values in array </param>
+        public DiagonalMatrix( T[] elements) : base(elements)
+        {
+           
+        }
+
+        /// <summary>
+        /// Indexators, works as two dimensional selector for User, but values are stored in one dimensional array
+        /// </summary>
+        /// <param name="i"> X dimension selector from User perspective </param>
+        /// <param name="j"> Y dimension selector from User perspective </param>
+        /// <returns></returns>
+        public override T this[int i, int j]
         {
             get
             {
-                if (a == j && a < MatrixElements.Length)
+                if ( i >= Dimension  || j >= Dimension )
                 {
-                    return MatrixElements[a];
+                    throw new IndexOutOfRangeException("These are default values null, empty or zero, you can not change them");
                 }
-                else
-                {
-                    throw new IndexOutOfRangeException("These are default values null, empty or zero");
-                }
-
+                return   ( i == j && i < Dimension ) ? base[0, i] : default;
+                 
             }
 
             set
             {
 
-                if (a == j && a < MatrixElements.Length)
+                if ( i == j && i < Dimension )
                 {
-                    MatrixElements[a] = value;
+                    if (!base.Equals( value ))
+                    {
+                        T t = base[0, i];
+                        T n = value;
+                        ElementsChanged?.Invoke( i, j, t, n );
+                    }
+
+                    base[0, i] = value;
                 }
+
                 else
                 {
-                    throw new IndexOutOfRangeException("These are default values null, empty or zero, you can not change them");
+                    throw new IndexOutOfRangeException( "These are default values null, empty or zero, you can not change them" );
                 }
 
             }
         }
-
-        public DiagonalMatrix(T[] elements, int x) : base(elements, x)
-        {
-            if (elements.Length != x)
-            {
-                throw new IndexOutOfRangeException("Wrong array, not enough elements!!!");
-            }
-
-        }
-
     }
 }
